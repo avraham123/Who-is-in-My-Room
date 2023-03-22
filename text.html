@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Who's in my Room</title>
+
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background-color: #d7e7e9;
+        color: #333;
+      }
+    
+      h1 {
+        font-size: 54px;
+        margin: 60px 0 40px;
+        color: rgb(0, 49, 81);
+        text-shadow: 1px 1px 0 rgb(255, 255, 255);
+        transition: all 0.3s ease;
+      }
+    
+      h1:hover {
+        transform: translateY(-5px);
+      }
+    
+      #status {
+        border: 20px solid green;
+        padding: 20px;
+        border-radius: 50px;
+        display: inline-block;
+        margin: 1px;
+        color: rgb(0, 49, 81);
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+        
+        
+      }
+
+      
+    
+      #status.occupied-light {
+        color: rgb(0, 49, 81);
+      }
+    
+      #status.occupied-dark {
+        border-color: #333;
+      }
+    
+      #message {
+        font-size: 20px;
+        margin-bottom: 20px;
+        color: rgb(0, 49, 81);;
+        text-align: center;
+      }
+
+     
+    
+      form {
+        margin: 60px auto;
+        text-align: center;
+        width: 50%;
+        max-width: 300px;
+        color: rgb(0, 49, 81);
+        
+      }
+    
+      label {
+        display: block;
+        font-size: 22px;
+        margin-bottom: 10px;
+        text-align: center;
+        color: rgb(0, 49, 81);
+      }
+    
+      input[type="text"] {
+        padding: 10px;
+        font-size: 20px;
+        width: 100%;
+        border-radius: 5px;
+        border: none;
+        background-color: #eee;
+        color: rgb(0, 49, 81);
+        text-align: center;
+      }
+    
+      input[type="button"] {
+        padding: 10px 20px;
+        font-size: 20px;
+        margin: 20px 0;
+        color: rgb(255, 255, 255);
+        background-color: rgb(0, 49, 81);
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+    
+      input[type="button"]:hover {
+        color: rgb(0, 49, 81);
+      }
+    
+      input:disabled {
+        cursor: not-allowed;
+      }
+    
+      table {
+        margin: 20px auto;
+        border-collapse: collapse;
+        border: 1px solid rgb(0, 49, 81);
+        width: 80%;
+        max-width: 800px;
+        
+      }
+
+      
+    
+      th,
+      td {
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: center;
+      }
+    
+      th {
+        color: rgb(255, 255, 255);
+        background-color: rgb(0, 49, 81);
+        
+        font-size: 18px;
+      }
+    
+      td {
+        
+        color: #333;
+      }
+
+
+      #clock {
+  font-size: 39px;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 20px;
+  cursor: pointer;
+  transition: all 0.5s ease;
+  color: rgb(0, 49, 81);
+}
+
+#clock:hover {
+  transform: scale(1.1);
+}
+
+#enter:hover {
+  background-color: #4caf50;
+}
+
+
+
+#enter {
+  margin-right: 40px;
+}
+
+
+#enter:hover:not(:disabled) {
+  transform: scale(1.2);
+}
+
+
+#leave:hover {
+  background-color: #f44336;
+}
+
+#leave:hover:not(:disabled) {
+  transform: scale(1.2);
+}
+
+container {
+  display: flex;
+}
+
+.left {
+  width: 50%;
+  padding-right: 20px;
+}
+
+.right {
+  width: 50%;
+  position: relative;
+}
+
+
+
+    </style>
+    
+  </head>
+
+  <body>
+
+    <div class="container">
+    <h1>Who's in My Room</h1>
+
+    <div id="clock"></div>
+
+    <form>
+      <label for="name">Your Name:</label>
+      <input type="text" id="name" required>
+      <br><br>
+      <input type="button" value="Enter" id="enter"  >
+      <input type="button" value="Exit" id="leave" disabled="disabled">
+    </form>
+
+
+
+
+
+    <div id="status">
+      <p id="message">Room is Empty</p>
+    </div>
+
+    
+  </div>
+
+
+    <table id="time-table">
+      <tr>
+        <th>Time of Enterence</th>
+        <th>Time of stay</th>
+        <th>Name</th>
+        <th>Fast or Long</th>
+      </tr>
+
+    </table>
+
+    
+
+   
+
+    
+
+   
+
+
+
+    <script>
+const status = document.querySelector("#status");
+const message = document.querySelector("#message");
+const enterBtn = document.querySelector("#enter");
+const leaveBtn = document.querySelector("#leave");
+const table = document.querySelector("#time-table");
+const nameInput = document.querySelector("#name");
+const averageDisplay = document.querySelector("#average");
+const form = document.querySelector('form');
+
+
+
+
+let startTime;
+let intervalId;
+let entered = false;
+
+
+
+
+enterBtn.addEventListener("click", function() {
+
+entered = true;
+  document.getElementById("leave").removeAttribute("disabled");
+  
+  message.innerHTML = "Occupied";
+  status.style.borderColor = "crimson";
+  intervalId = setInterval(switchColor, 2000);
+  startTime = Date.now();
+  intervalId = setInterval(updateTime, 1000);
+  
+});
+
+
+
+
+leaveBtn.addEventListener("click", function() {
+
+
+  document.getElementById("leave")
+  clearInterval(intervalId);
+  status.style.borderColor = "green";
+  const endTime = Date.now();
+  const duration = (endTime - startTime) / 1000;
+  
+
+  const row = document.createElement("tr");
+  const startCell = document.createElement("td");
+  startCell.innerHTML = formatDate(new Date(startTime));
+  row.appendChild(startCell);
+
+  const durationCell = document.createElement("td");
+  durationCell.innerHTML =  + duration + " Seconds ";
+  row.appendChild(durationCell);
+
+  const userCell = document.createElement("td");
+  userCell.innerHTML = nameInput.value;
+  row.appendChild(userCell);
+
+  //const longCell = document.createElement("td");
+  //longCell.innerHTML = short\long
+  let isShort = "YES!";
+  if (duration <60)
+  {
+    isShort = "Fast";
+  }
+  else isShort = "Long";
+  const LongCell = document.createElement("td");
+  LongCell.innerHTML = isShort;
+  row.appendChild(LongCell);
+
+
+  table.appendChild(row);
+
+  message.innerHTML = "Room is Empty";
+  form.reset();
+  document.getElementById("leave").disabled = true;
+  
+}
+
+);
+
+
+
+
+function switchColor() {
+  if (status.classList.contains("occupied-light")) {
+    status.classList.remove("occupied-light");
+    status.classList.add("occupied-dark");
+  } else {
+    status.classList.remove("occupied-dark");
+    status.classList.add("occupied-light");
+  }}
+
+function updateTime() {
+  const currentTime = Date.now();
+  const duration = (currentTime - startTime) / 1000;
+  message.innerHTML =  ` Occupied (${duration.toFixed(0)} Seconds)`;
+}
+
+function formatDate(date) {
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const seconds = date.getSeconds();
+
+  const clock = document.getElementById("clock");
+
+function updateClock() {
+  var date = new Date();
+        var time = date.toLocaleTimeString();
+        document.getElementById("clock").innerHTML = time;
+      }
+      setInterval(updateClock, 1000);
+
+      setInterval(function() {
+  const currentTime = new Date();
+  let hours = currentTime.getHours();
+  let minutes = currentTime.getMinutes();
+  let seconds = currentTime.getSeconds();
+
+  if (hours < 10) {
+    hours = `0${hours}`;
+  }
+  if (minutes < 10) {
+    minutes = `0${minutes}`;
+  }
+  if (seconds < 10) {
+    seconds = `0${seconds}`;
+  }
+
+  document.getElementById("clock").innerHTML = `${hours}:${minutes}:${seconds}`;
+}, 1000);
+
+window.onload = function () {
+    if (! localStorage.justOnce) {
+        localStorage.setItem("justOnce", "true");
+        window.location.reload();
+    }
+}
+
+
+  return `${hours}:${minutes}:${seconds}`;
+}
+  </script>
